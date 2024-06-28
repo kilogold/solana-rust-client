@@ -30,22 +30,32 @@ use spl_token_2022::{
     },
     instruction::{initialize_mint, mint_to, reallocate},
     proof::ProofLocation,
-    solana_zk_token_sdk::{
-        encryption::{
-            auth_encryption::AeKey,
-            elgamal::{self, ElGamalKeypair},
-        },
-        instruction::ciphertext_commitment_equality::CiphertextCommitmentEqualityProofContext,
-        zk_token_elgamal::pod::ElGamalPubkey,
-        zk_token_proof_instruction::{
-            close_context_state, BatchedGroupedCiphertext2HandlesValidityProofContext,
-            BatchedRangeProofContext, ContextStateInfo, ProofInstruction, WithdrawProofContext,
-        },
-        zk_token_proof_program,
-        zk_token_proof_state::ProofContextState,
-    },
+    solana_zk_token_sdk::zk_token_proof_instruction::WithdrawProofContext,
     state::{Account, Mint},
 };
+use solana_zk_sdk::{
+    encryption::{
+        auth_encryption::AeKey,
+        elgamal::{self, ElGamalKeypair, ElGamalPubkey},
+    },
+    zk_elgamal_proof_program::{
+        self,
+        ID,
+        state::ProofContextState,
+        instruction::{
+            close_context_state,
+            ProofInstruction,
+            ContextStateInfo,
+        },
+        proof_data::{
+            batched_grouped_ciphertext_validity::BatchedGroupedCiphertext2HandlesValidityProofContext,
+            ciphertext_ciphertext_equality::CiphertextCiphertextEqualityProofContext,
+            batched_range_proof::BatchedRangeProofContext,
+
+        },
+    }
+};
+
 use spl_token_client::{
     client::{ProgramRpcClient, ProgramRpcClientSendTransaction},
     token::{ExtensionInitializationParams, Token},
@@ -62,11 +72,12 @@ use simple_logger::SimpleLogger;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // Initialize the logger with the trace level
-    SimpleLogger::new().with_level(log::LevelFilter::Trace).init().unwrap();
+    //SimpleLogger::new().with_level(log::LevelFilter::Trace).init().unwrap();
 
 
     // 1. Create sender and recipient wallet keypairs -----------------------------------
-    let wallet_1 = Arc::new(load_signer_from_ledger("wallet_1", false)?);
+    //let wallet_1 = Arc::new(load_signer_from_ledger("wallet_1", false)?);
+    let wallet_1 = Arc::new(get_or_create_keypair("wallet_1")?);
     let wallet_2 = Arc::new(get_or_create_keypair("wallet_2")?);
 
     let client = RpcClient::new_with_commitment(
@@ -607,7 +618,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Equality Proof ---------------------------------------------------------------------------
 
     // Calculate the space required for the account
-    let space = size_of::<ProofContextState<CiphertextCommitmentEqualityProofContext>>();
+    let space = size_of::<ProofContextState<CiphertextCiphertextEqualityProofContext>>();
     let rent = client.get_minimum_balance_for_rent_exemption(space)?;
 
     // Create Account for Equality Proof

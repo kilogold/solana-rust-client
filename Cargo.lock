@@ -1964,6 +1964,7 @@ dependencies = [
  "solana-program",
  "solana-remote-wallet",
  "solana-sdk",
+ "solana-zk-sdk",
  "spl-associated-token-account 4.0.0",
  "spl-token-2022 4.0.0",
  "spl-token-client",

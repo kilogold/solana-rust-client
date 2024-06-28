@@ -15,7 +15,7 @@ spl-associated-token-account = "4.0.0"
 clap = "2.33.0"
 solana-remote-wallet = {version = "2.0.1", features = ["hidapi"]}
 solana-clap-utils = "2.0.1"
-
+solana-zk-sdk = "2.0.1"
 
 log = "0.4"
 simple_logger = "5.0.0"
